@@ -1,12 +1,11 @@
-provider "aws" {}
-
-module "subnet" {
-  source = "./modules/subnet"
-  subnet_cidr_block = var.vpc_cidr_block
-  current_az = var.current_az
-  current_env = var.current_env
-  my_vpc = aws_vpc.my-vpc
+terraform {
+  backend "s3" {
+    bucket = "my-remote-state-backend"
+    key = "backend/state.tfstate"
+    region = "us-east-1"
+  }
 }
+provider "aws" {}
 
 #declaring variables
 variable "current_env" {}
@@ -25,6 +24,13 @@ resource "aws_vpc" "my-vpc" {
   }
 }
 
+module "subnet" {
+  source = "./modules/subnet"
+  subnet_cidr_block = var.vpc_cidr_block
+  current_az = var.current_az
+  current_env = var.current_env
+  my_vpc = aws_vpc.my-vpc
+}
 module "server" {
   source = "./modules/server"
   my_ip = var.my_ip
